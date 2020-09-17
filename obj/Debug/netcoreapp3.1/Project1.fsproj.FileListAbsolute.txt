@@ -1,0 +1,3 @@
+/home/parth-pc/DOS/Project1/obj/Debug/netcoreapp3.1/Project1.fsprojAssemblyReference.cache
+/home/parth-pc/DOS/Project1/obj/Debug/netcoreapp3.1/Project1.AssemblyInfoInputs.cache
+/home/parth-pc/DOS/Project1/obj/Debug/netcoreapp3.1/Project1.AssemblyInfo.fs
