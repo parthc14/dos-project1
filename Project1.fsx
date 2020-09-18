@@ -31,7 +31,7 @@ type EchoServer(id, startNum, endNum, k) =
             let sum = sum1 / 6 |> float
             let un = x-1
             let unSum = (un * (un+1) * ((2*un)+1))                            
-            let unwantedSum = unSum / 6 |>float
+            let unwantedSum = unSum / 6 |> float
             let realSum =  sum - unwantedSum                                  
             let sqrRoot = sqrt realSum                                 
             let roundSqrt =  sqrRoot |> floor |> float                  
@@ -39,19 +39,19 @@ type EchoServer(id, startNum, endNum, k) =
                 printfn "%i" x
 
         match message with
-        | :? string as msg -> () //printfn "Actor with startRange %i -  endRange %i"  startNum endNum  
+        | :? string as msg -> () //printfn " %s"  msg   
         | _ ->  failwith "unknown message"
 
 
 
 
-let n = 40 |> float
+let n = 100 |> float
 let k = 24 |> float
 let noOfCores = Environment.ProcessorCount |> float
 let noActors = 10.0 * noOfCores |> float
 let workRange =  n / noActors |> float |> ceil |>int
 // printfn "Number of Actors %f" noActors
-// printfn "Work Range %i" workRange
+printfn "Work Range %i" workRange
 
 
 let intActors = noActors |>int
@@ -60,7 +60,12 @@ let allActors =
     |> List.map(fun id ->   let properties = [|  int(id):> obj; int(0 + (id-1)* workRange + 1):>obj; int(0 + (id)*workRange) :> obj ;int(k) :> obj |]
                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
             
-            
+
+
+// let lastList =  [|  int(intActors):>obj; int(0 + (intActors - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+// let finalActor = system.ActorOf(Props(typedefof<EchoServer>, lastList))
+
+
 let finalActor = 
     [workRange-1 .. workRange]
     |> List.map(fun id ->   let properties = [|  int(workRange):>obj; int(0 + (workRange - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
@@ -71,7 +76,7 @@ let finalList = allActors @ finalActor
 
 for id in [ 1 .. workRange] do
     List.item (id) finalList
-    <! sprintf "F# %d!" id
+    <! sprintf "Done! %d" id
 
 
 system.Terminate()
