@@ -24,19 +24,19 @@ type EchoServer(id, startNum, endNum, k) =
     inherit Actor()
         
     override x.OnReceive message =
-        
-        for x in [startNum..endNum] do
-            let y = x+k - 1
-            let sum1 = (y *(y+1)  *((2*y)+1))                                    
-            let sum = sum1 / 6 |> float
-            let un = x-1
-            let unSum = (un * (un+1) * ((2*un)+1))                            
-            let unwantedSum = unSum / 6 |> float
-            let realSum =  sum - unwantedSum                                  
-            let sqrRoot = sqrt realSum                                 
-            let roundSqrt =  sqrRoot |> floor |> float                  
-            if sqrRoot-roundSqrt = 0.0 then                               
-                printfn "%i" x
+        printfn "StartNum %i EndNum %i " startNum endNum
+        // for x in [startNum..endNum] do
+        //     let y = x+k - 1
+        //     let sum1 = (y *(y+1)  *((2*y)+1))                                    
+        //     let sum = sum1 / 6 |> float
+        //     let un = x-1
+        //     let unSum = (un * (un+1) * ((2*un)+1))                            
+        //     let unwantedSum = unSum / 6 |> float
+        //     let realSum =  sum - unwantedSum                                  
+        //     let sqrRoot = sqrt realSum                                 
+        //     let roundSqrt =  sqrRoot |> floor |> float                  
+        //     if sqrRoot-roundSqrt = 0.0 then                               
+        //         printfn "%i" x
 
         match message with
         | :? string as msg -> () //printfn " %s"  msg   
@@ -68,12 +68,6 @@ let finalActor = system.ActorOf(Props(typedefof<EchoServer>, lastList))
 let temp = [finalActor]
 let finalList = allActors @ temp
 
-// let finalActor = 
-//     [workRange-1 .. workRange]
-//     |> List.map(fun id ->   let properties = [|  int(workRange):>obj; int(0 + (workRange - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
-//                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
-
-// let finalList = allActors @ finalActor   
 
 
 for id in [ 0 .. workRange-1] do
@@ -82,6 +76,15 @@ for id in [ 0 .. workRange-1] do
 
 
 system.Terminate()
+// let finalActor = 
+//     [workRange-1 .. workRange]
+//     |> List.map(fun id ->   let properties = [|  int(workRange):>obj; int(0 + (workRange - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+//                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
+
+// let finalList = allActors @ finalActor   
+
+
+
 // et list = createWorkder newCore t workRange k n
 // let allActors = 
 //     [0 .. workRange-1]
