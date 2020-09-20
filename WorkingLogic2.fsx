@@ -34,26 +34,20 @@ let n= N |> int |> bigint
 type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef) =
     inherit Actor()
     do
-        let mutable ansList: bigint list = []
-        for i in [ startNum .. endNum ] do
-            let y = i + k - bigint(1)
-            let sum1 = (y * (y + bigint (1))*((bigint (2) * y) + bigint (1)))
-
-            let sum = sum1 / bigint (6)
-            let un = i - bigint(1)
-            let unSum1 =(un*(un + bigint (1))* ((bigint (2) * un) + bigint (1)))
-           
-            let unSum = unSum1 / bigint (6)
-            let realSum = sum - unSum |> float
-            let sqrRoot = sqrt realSum
-            let roundRoot = sqrRoot |> floor
-
-            if sqrRoot - roundRoot = 0.0 then
-                
-                let temp = [ i ]
-                ansList <- ansList @ temp
-        
-        ansList |> List.iter (fun x -> printfn "%A" x)
+        let mutable ansList: int list = []
+        let mutable sqSum = 0 |> bigInt
+        let mutable sqrRoot = 0 |> double
+        for i in [startNum..endNum] do
+            sqSum <-bigInt(0)
+            for j in [i..(i+k-bigInt(1))] do
+                    let a = j 
+                    sqSum <- (a*a) + sqSum
+            // printfn "SqSum %i" sqSum
+            let sumDouble = sqSum |> double        
+            sqrRoot <- sqrt sumDouble 
+            match ((sqrRoot%1.0)<=0.0) with 
+            | true -> printfn "%A" i
+            | false -> ()  
         caller.Tell("done")
         ()
 
@@ -87,7 +81,7 @@ let BossActor =
                 numActors <- numActors + 1
                 spawnChild (startNum + workRange, workRange, k, numOfActors - bigint(1), n)
 
-        spawnChild (bigint(1), worRange, k, bigint(25), n)
+        spawnChild (bigint(1), worRange, k, bigint(80), n)
         let rec loop () =
             actor {
                 let! message = mailbox.Receive()
