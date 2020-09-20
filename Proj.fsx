@@ -25,26 +25,29 @@ let N = n |> int |> int64
 let K = k |> int |> int64
 let newWorkRange = workRange |> int |> int64
 let intActors = N / newWorkRange
-
+let bigint(x:int) = bigint(x)
 
 let orderProcessor (mailbox: Actor<_>) =
+    printfn "Trying BigInt"
+    printfn "bigInt: %A " 123456789I
     let rec loop () = actor {
         let! ProcessJob(startNum,endNum,k) = mailbox.Receive ()
         mailbox.Sender() <!sprintf "Message sent"
-        let mutable sqSum = 0 |> int64
-        let mutable sqrRoot = 0 |> double
-        for i in [startNum..endNum] do
-            sqSum <-int64(0)
-            for j in [i..(i+k-int64(1))] do
-                    let a = j |> int64
-                    sqSum <- (a*a) + sqSum
-            // printfn "SqSum %i" sqSum
-            let sumDouble = sqSum |> double        
-            sqrRoot <- sqrt sumDouble 
-            match ((sqrRoot%1.0)<=0.0) with 
-            | true -> printfn "%i" i
-            | false -> ()    
-
+        
+        // let mutable sqSum = 0 |> int64
+        // let mutable sqrRoot = 0 |> double
+        // for i in [startNum..endNum] do
+        //     sqSum <-int64(0)
+        //     for j in [i..(i+k-int64(1))] do
+        //             let a = j |> int64
+        //             sqSum <- (a*a) + sqSum
+        //     // printfn "SqSum %i" sqSum
+        //     let sumDouble = sqSum |> double        
+        //     sqrRoot <- sqrt sumDouble 
+        //     match ((sqrRoot%1.0)<=0.0) with 
+        //     | true -> printfn "%i" i
+        //     | false -> ()    
+       
       
         // for x in [startNum..endNum] do
         //     let y = x+k - 1

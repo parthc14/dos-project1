@@ -23,16 +23,35 @@ let noOfCores = Environment.ProcessorCount |> float
 let noActors = 10.0 * noOfCores |> float
 let workRange =  n / noActors |> float |> ceil |>int
 
+let childActors (mailBox: Actor<_>)=
+    let rec loop() = actor{
+        let! message = mailBox.Receive()
+        mailBox.Sender() <!sprintf "Message sent %s" message
+        return! loop() 
+    }
+    loop()
+
+
+
 let bossActor(n: float)(k:float)(workRange:int)(mailBox: Actor<_>) =
     let rec loop() = actor{
         let! message = mailBox.Receive()
         printfn "%s N: %f K: %f workRange : %i" message n k workRange
         return! loop()
     }
+    childActors <! sprintf "Message" 
     loop()
+
+
+
+    
+
+
+
 
 let bossActorRef = spawn system "bossActor" <| bossActor n k workRange
 [1..10] |> List.iter(fun i-> bossActorRef <! sprintf "Need to create Actors here! %i" i)
+let callerRef = spawn system "childActors" <| childActors 
 
 
 // let alternatingRouter (processor1: IActorRef) (processor2: IActorRef) (mailbox: Actor<_>) =
