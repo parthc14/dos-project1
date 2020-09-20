@@ -36,7 +36,6 @@ let orderProcessor (mailbox: Actor<_>) =
     let rec loop () = actor {
         let! ProcessJob(startNum,endNum,k) = mailbox.Receive ()
        // mailbox.Sender() <!sprintf "Message sent"
-        // printfn "StartNum: %i EndNum: %i " startNum endNum  
         for x in [startNum..endNum] do
             let y = x+k - int64(1)
             let sum1 = (y *(y+int64(1))  *((int64(2)*y)+int64(1)))                                    
@@ -50,7 +49,7 @@ let orderProcessor (mailbox: Actor<_>) =
             if sqrRoot-roundSqrt = 0.0 then                               
                 printfn "%i " x
        
-        // printfn "%s" message
+ 
         return! loop ()
     }
     loop ()
@@ -58,7 +57,7 @@ let orderProcessor (mailbox: Actor<_>) =
 let caller orderProcessor (n: int64)(k:int64)(workRange:int64)(mailbox: Actor<_>) =
     let rec loop () = actor {
         let! message = mailbox.Receive ()
-        printfn ""
+        ()
     }
     let allActors = newActors-int64(1)
     for i in [int64(1)..allActors] do
@@ -68,7 +67,6 @@ let caller orderProcessor (n: int64)(k:int64)(workRange:int64)(mailbox: Actor<_>
     orderProcessor <! ProcessJob((((newActors-int64(1))*newWorkRange)+int64(1)), (N') ,(K'))
     loop ()
 
-printfn "Workrange is %i" workRange
 let orderProcessorRef = spawn system "orderProcessor" orderProcessor
 let callerRef = spawn system "caller" <| caller orderProcessorRef N' K' newWorkRange
 
