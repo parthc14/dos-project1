@@ -19,30 +19,7 @@ open Akka.Configuration
 open Akka.FSharp
 open Akka.TestKit
 
-
-type EchoServer(id, startNum, endNum, k) =
-    inherit Actor()
-        
-    override x.OnReceive message =
-        
-        for x in [startNum..endNum] do
-            let y = x+k - 1
-            let sum1 = (y *(y+1)  *((2*y)+1))                                    
-            let sum = sum1 / 6 |> float
-            let un = x-1
-            let unSum = (un * (un+1) * ((2*un)+1))                            
-            let unwantedSum = unSum / 6 |> float
-            let realSum =  sum - unwantedSum                                  
-            let sqrRoot = sqrt realSum                                 
-            let roundSqrt =  sqrRoot |> floor |> float                  
-            if sqrRoot-roundSqrt = 0.0 then                               
-                printfn "%i" x
-
-        match message with
-        | :? string as msg -> () //printfn " %s"  msg   
-        | _ ->  failwith "unknown message"
-
-
+let bigInt (x: int) = bigint (x)
 
 
 let n = 100 |> float
@@ -54,24 +31,47 @@ let workRange =  n / noActors |> float |> ceil |>int
 printfn "Work Range %i" workRange
 
 
+
+type EchoServer(id, startNum, endNum, k) =
+    inherit Actor()
+    
+        
+    override x.OnReceive message =
+        
+        let mutable temp = 1 |> bigInt
+        let mutable st = 1|> bigint
+        let mutable res = 0 |> bigInt 
+        for x in [startNum..endNum] do
+            let startPlusWindow = (x+k-bigInt(1))
+            for j in [x..startPlusWindow] do
+                    temp <- (j*j)
+                    res <- res + temp
+            while(st*st <=(res)) do
+                if(st*st = res) then
+                    printfn "%A" (startPlusWindow-k + bigint(1))
+
+                st<- st + bigint(1)
+            res <- bigint(0)
+
+
+
+
+
 let intActors = noActors |>int
+// let allActors = 
+//     [1 .. workRange-1]
+//     |> List.map(fun id ->   let properties = [|  int(id):> obj; int(0 + (id-1)* workRange + 1):>obj; int(0 + (id)*workRange) :> obj ;int(k) :> obj |]
+//                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
+
 let allActors = 
-    [1 .. workRange-1]
-    |> List.map(fun id ->   let properties = [|  int(id):> obj; int(0 + (id-1)* workRange + 1):>obj; int(0 + (id)*workRange) :> obj ;int(k) :> obj |]
-                            system.ActorOf(Props(typedefof<EchoServer>, properties)))
-            
-
-
-// let lastList =  [|  int(intActors):>obj; int(0 + (intActors - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
-// let finalActor = system.ActorOf(Props(typedefof<EchoServer>, lastList))
-
-
-let finalActor = 
-    [workRange-1 .. workRange]
-    |> List.map(fun id ->   let properties = [|  int(workRange):>obj; int(0 + (workRange - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+    [0 .. workRange-1]
+    |> List.map(fun id ->   let properties = [|  string(id):> obj; string( id +  workRange*(id)):>obj; string(k) :> obj ;string(n) :> obj |]
                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
 
-let finalList = allActors @ finalActor   
+let lastList =  [|  int(intActors):>obj; int(0 + (intActors - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+let finalActor = system.ActorOf(Props(typedefof<EchoServer>, lastList))           
+let temp = [finalActor]
+let finalList = allActors @ temp  
 
 
 for id in [ 1 .. workRange] do
@@ -80,6 +80,23 @@ for id in [ 1 .. workRange] do
 
 
 system.Terminate()
+
+
+
+// let lastList =  [|  int(intActors):>obj; int(0 + (intActors - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+// let finalActor = system.ActorOf(Props(typedefof<EchoServer>, lastList))
+
+
+// let finalActor = 
+//     [workRange-1 .. workRange]
+//     |> List.map(fun id ->   let properties = [|  int(workRange):>obj; int(0 + (workRange - 1)*workRange + 1) :> obj ;int(n) :> obj; (int)(k):> obj |]
+//                             system.ActorOf(Props(typedefof<EchoServer>, properties)))
+
+
+
+
+
+
 // et list = createWorkder newCore t workRange k n
 // let allActors = 
 //     [0 .. workRange-1]
