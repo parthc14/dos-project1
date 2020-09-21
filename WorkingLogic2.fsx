@@ -13,7 +13,7 @@ open System.Collections.Generic
 
 let system = ActorSystem.Create("FSharp")
 
-
+let mutable flag = true
 
 let bigInt (x: int) = bigint (x)
 let args : string array = fsi.CommandLineArgs |> Array.tail
@@ -24,7 +24,7 @@ let k = args.[1] |> float |> int |> bigint
 
 // let numOfCores = 80 * Environment.ProcessorCount |> float
 
-let worRange = N / 25.0 |> float |> ceil |> int |> bigInt
+let worRange = N / 30.0 |> float |> ceil |> int |> bigInt
 // let numOfActors = numOfCores |> int
 let n= N |> int |> bigint
 
@@ -34,9 +34,7 @@ let n= N |> int |> bigint
 type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef) =
     inherit Actor()
     do
-        // let mutable ansList: int list = []
-        // let mutable sqSum = 0 |> bigInt
-        // let mutable sqrRoot = 0 |> double
+        
         let mutable temp = 1 |> bigInt
         let mutable st = 1|> bigint
         let mutable res = 0 |> bigInt 
@@ -51,12 +49,6 @@ type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef
 
                 st<- st + bigint(1)
             res <- bigint(0) 
-            // printfn "SqSum %i" sqSum
-            // let sumDouble = sqSum |> double        
-            // sqrRoot <- sqrt sumDouble 
-            // match ((sqrRoot%1.0)<=0.0) with 
-            // | true -> printfn "%A" i
-            // | false -> ()  
         caller.Tell("done")
         ()
 
@@ -67,7 +59,7 @@ type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef
 let BossActor =
     spawn system "EchoServer"
     <| fun mailbox ->
-        let t = 0
+      
         let mutable numActors = 0
 
         let rec spawnChild (startNum: bigint, workRange: bigint, k: bigint, numOfActors: bigint, n: bigint) =
@@ -90,22 +82,24 @@ let BossActor =
                 numActors <- numActors + 1
                 spawnChild (startNum + workRange, workRange, k, numOfActors - bigint(1), n)
 
-        spawnChild (bigint(1), worRange, k, bigint(25), n)
+        spawnChild (bigint(1), worRange, k, bigint(30), n)
         let rec loop () =
             actor {
                 let! message = mailbox.Receive()
-                // printfn "%A" mailbox.Log
                 match box message with
                 | :? string as msg ->
                     numActors <- numActors - 1
-                    if (numActors > 0) then return! loop () else ()
+                    if (numActors > 0) then return! loop () else 
+                    flag <- false
+                    ()
                 | _ -> failwith "unknown message"
             }
 
         loop ()
 
+while flag do
+    ignore
 
 
 
-
-system.Terminate()
+system.Terminate()|>ignore
