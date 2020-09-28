@@ -5,8 +5,10 @@ Language: F#
 Project 1: Lucas' Square Pyramid
 
 
-Project Members
+Project Members:
+
 Parth Paresh Chitroda UFID- 5189-1737
+
 Saheel Ravindra Sawant UFID- 1164-7923
 
 
@@ -73,9 +75,10 @@ For the given N and K values, since there exist no possible Lucas' Square Pyrami
 
 Q-3 The running time for the above as reported by time for the above, i.e run time scala project1.scala 1000000 4 and report the time. The ratio of CPU time to REAL TIME tells you how many cores were effectively used in the computation. If your are close to 1 you have almost no parallelism (points will be subtracted).
 
-We ran our programs on Ubuntu OS with 8 cores and for the above problem the
+Ans: We ran our programs on Ubuntu OS with 8 cores and for the above problem the
 CPU time is 00:00:24.190 and the REAL time is 00:00:05.134.The ratio of CPU time to
 REAL time is 4.71
 
 Q-4	The largest problem you managed to solve.
+
 Ans: The largest problem we managed to solve is N = 100000000 and K = 24 and the ratio of CPU time to REAL time is 3.75
