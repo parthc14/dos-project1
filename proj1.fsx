@@ -10,56 +10,40 @@ open Akka.TestKit
 open System.Collections.Generic
 
 
-
 let system = ActorSystem.Create("FSharp")
 
-
-
 let bigInt (x: int) = bigint (x)
+
 let args : string array = fsi.CommandLineArgs |> Array.tail
 let N =  args.[0] |> float
 let k = args.[1] |> float |> int |> bigint
 
 
-
-// let numOfCores = 80 * Environment.ProcessorCount |> float
-
-let worRange = N / 25.0 |> float |> ceil |> int |> bigInt
-// let numOfActors = numOfCores |> int
+let workRange = N / 30.0 |> float |> ceil |> int |> bigInt
 let n= N |> int |> bigint
-
+let mutable notEnd = true
 
 
 
 type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef) =
     inherit Actor()
     do
-        // let mutable ansList: int list = []
-        // let mutable sqSum = 0 |> bigInt
-        // let mutable sqrRoot = 0 |> double
-        let mutable temp = 1 |> bigInt
-        let mutable st = 1|> bigint
-        let mutable res = 0 |> bigInt 
+        let mutable one = 1 |> bigInt
+        let mutable start = 1|> bigint
+        let mutable answer = 0 |> bigInt 
         for i in [startNum..endNum] do
-            let startPlusWindow = (i+k-bigInt(1))
-            for j in [i..startPlusWindow] do
-                    temp <- (j*j)
-                    res <- res + temp
-            while(st*st <=(res)) do
-                if(st*st = res) then
-                    printfn "%A \n" (startPlusWindow-k + bigint(1))
+            let windowSize = (i+k-bigInt(1))
+            for j in [i..windowSize] do
+                    one <- (j*j)
+                    answer <- answer + one
+            while(start*start <=(answer)) do
+                if(start*start = answer) then
+                    printfn "%A\n" (windowSize-k + bigint(1))
 
-                st<- st + bigint(1)
-            res <- bigint(0) 
-            // printfn "SqSum %i" sqSum
-            // let sumDouble = sqSum |> double        
-            // sqrRoot <- sqrt sumDouble 
-            // match ((sqrRoot%1.0)<=0.0) with 
-            // | true -> printfn "%A" i
-            // | false -> ()  
+                start<- start + bigint(1)
+            answer <- bigint(0) 
         caller.Tell("done")
         ()
-
     override x.OnReceive message = ()
 
 
@@ -67,7 +51,7 @@ type ActorCreator(startNum: bigint, endNum: bigint, k: bigint, caller: IActorRef
 let BossActor =
     spawn system "EchoServer"
     <| fun mailbox ->
-        let t = 0
+      
         let mutable numActors = 0
 
         let rec spawnChild (startNum: bigint, workRange: bigint, k: bigint, numOfActors: bigint, n: bigint) =
@@ -90,22 +74,22 @@ let BossActor =
                 numActors <- numActors + 1
                 spawnChild (startNum + workRange, workRange, k, numOfActors - bigint(1), n)
 
-        spawnChild (bigint(1), worRange, k, bigint(25), n)
+        spawnChild (bigint(1), workRange, k, bigint(30), n)
+        ()
         let rec loop () =
             actor {
                 let! message = mailbox.Receive()
-                // printfn "%A" mailbox.Log
                 match box message with
                 | :? string as msg ->
                     numActors <- numActors - 1
-                    if (numActors > 0) then return! loop () else ()
+                    if (numActors > 0) then return! loop () else 
+                    notEnd <- false
+                    ()
                 | _ -> failwith "unknown message"
             }
-
         loop ()
 
+while notEnd do
+    ignore
 
-
-
-
-system.Terminate()
+system.Terminate()|>ignore
